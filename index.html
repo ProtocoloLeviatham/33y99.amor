@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>33y99destinados...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Fuentes: Nunito, Pacifico, Share Tech Mono (Hacker) y Quicksand -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Nunito:wght@400;700&family=Pacifico&family=Share+Tech+Mono&family=Helvetica+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- Personalización General --- */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            min-height: 100vh;
+            color: #4a4a4a;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Pacifico', cursive;
+            color: #d63384;
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5);
+        }
+
+        .romantic-text {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+        }
+
+        /* --- Fondo Animado (Corazones Flotantes) --- */
+        .hearts-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden;
+        }
+        .heart-particle {
+            position: absolute; font-size: 20px; color: rgba(255, 255, 255, 0.6); animation: floatUp 10s linear infinite;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- CARTAS 3D PREMIUM --- */
+        .cards-section-wrapper {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 50px; padding: 40px 20px;
+        }
+
+        .card-3d-scene {
+            width: 280px; height: 400px; perspective: 1200px; cursor: grab; position: relative;
+        }
+        .card-3d-scene:active { cursor: grabbing; }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .card-float-wrapper { width: 100%; height: 100%; animation: floatCard 4s ease-in-out infinite; }
+        .card-3d-scene:nth-child(1) .card-float-wrapper { animation-delay: 0s; }
+        .card-3d-scene:nth-child(2) .card-float-wrapper { animation-delay: 1s; }
+        .card-3d-scene:nth-child(3) .card-float-wrapper { animation-delay: 2s; }
+        .card-3d-scene:nth-child(4) .card-float-wrapper { animation-delay: 0.5s; }
+        .card-3d-scene:nth-child(5) .card-float-wrapper { animation-delay: 1.5s; }
+
+        .card-3d-object { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 0.1s; }
+        .card-3d-face {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 24px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.4) inset;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .card-face-front { z-index: 2; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .card-face-back {
+            background: #fff0f5; color: #d63384; transform: rotateY(180deg); z-index: 1;
+            text-align: center; font-weight: bold; font-size: 1.2rem; border: 4px solid #ffb7b2;
+        }
+        .card-glare {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), transparent 70%);
+            opacity: 0; pointer-events: none; mix-blend-mode: overlay; 
+            transition: opacity 0.1s; border-radius: 24px;
+        }
+
+        /* --- Quiz Styles --- */
+        .quiz-option { transition: all 0.3s ease; }
+        .quiz-option:hover { transform: scale(1.02); background-color: #fff5f7; border-color: #f687b3; }
+        .correct-anim { animation: pulse 0.5s; background-color: #4ade80 !important; color: white; border-color: #22c55e; }
+        .incorrect-anim { animation: shakeX 0.5s; background-color: #f87171 !important; color: white; border-color: #ef4444; }
+
+        /* --- Botones --- */
+        .btn-love {
+            background: linear-gradient(45deg, #ff0080, #ff8c00);
+            box-shadow: 0 4px 15px rgba(255, 0, 128, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-love:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255, 0, 128, 0.6); }
+
+        /* --- NUEVO FOOTER V3 --- */
+        .custom-footer {
+            position: relative;
+            background: #111;
+            color: white;
+            padding-top: 60px;
+            padding-bottom: 30px;
+            margin-top: 80px;
+            overflow: hidden;
+            border-top: 3px solid #00ff00; /* Toque Leviatham */
+        }
+        .custom-footer::before {
+            content: ''; position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, rgba(0,255,0,0.03) 0px, rgba(0,255,0,0.03) 1px, transparent 1px, transparent 10px);
+            pointer-events: none;
+        }
+        .heart-beat-footer { animation: heartBeat 1s infinite; display: inline-block; color: #ff0080; filter: drop-shadow(0 0 5px #ff0080); }
+        .tech-text { font-family: 'Share Tech Mono', monospace; letter-spacing: 2px; text-transform: uppercase; font-size: 0.7rem; color: #00ff00; opacity: 0.7; }
+
+        /* --- WHATSAPP CLONE STYLES --- */
+        #whatsapp-interface {
+            background-color: #efe7dd;
+            background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
+            background-size: 400px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            height: 650px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            position: relative;
+        }
+        
+        /* -- VISTA LISTA DE CHATS -- */
+        .wa-list-header {
+            background-color: #008069; color: white; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .wa-list-title { font-size: 20px; font-weight: bold; }
+        .wa-list-icons i { margin-left: 20px; font-size: 18px; cursor: pointer; }
+        
+        .wa-tabs {
+            background-color: #008069; color: rgba(255,255,255,0.7);
+            display: flex; padding-bottom: 0;
+        }
+        .wa-tab {
+            flex-grow: 1; text-align: center; padding: 10px; font-weight: bold; font-size: 14px;
+            border-bottom: 3px solid transparent; cursor: pointer;
+        }
+        .wa-tab.active { color: white; border-bottom-color: white; }
+        .wa-tab-camera { width: 50px; flex-grow: 0; }
+
+        .wa-chat-list {
+            background: white; flex-grow: 1; overflow-y: auto;
+        }
+        .wa-chat-item {
+            display: flex; align-items: center; padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s;
+        }
+        .wa-chat-item:hover { background-color: #f5f5f5; }
+        
+        .wa-item-avatar {
+            width: 50px; height: 50px; border-radius: 50%; background: #ccc;
+            overflow: hidden; margin-right: 15px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 25px;
+        }
+        .wa-item-info { flex-grow: 1; }
+        .wa-item-top { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .wa-item-name { font-weight: bold; color: #111b21; font-size: 16px; }
+        .wa-item-time { font-size: 12px; color: #667781; }
+        .wa-item-preview { font-size: 14px; color: #667781; display: flex; align-items: center; }
+        .wa-item-check { color: #53bdeb; margin-right: 5px; font-size: 14px; }
+
+
+        /* -- VISTA CONVERSACIÓN -- */
+        .wa-conversation-view {
+            display: none; /* Oculto por defecto */
+            flex-direction: column; height: 100%;
+            background-color: #efe7dd;
+            background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
+            background-size: 400px;
+        }
+        
+        .wa-chat-header {
+            background-color: #008069; padding: 10px 10px; color: white;
+            display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10;
+        }
+        .wa-back-btn { margin-right: 5px; cursor: pointer; padding: 5px; }
+        
+        .wa-chat-avatar {
+            width: 35px; height: 35px; background-color: #fff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 10px; cursor: pointer; overflow: hidden;
+        }
+        .wa-chat-info { flex-grow: 1; cursor: pointer; }
+        .wa-chat-name { font-weight: 500; font-size: 16px; line-height: 1.2; }
+        .wa-chat-status { font-size: 12px; opacity: 0.8; height: 15px; }
+
+        .wa-chat-body {
+            flex-grow: 1; overflow-y: auto; padding: 20px 8%;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .wa-chat-body::-webkit-scrollbar { width: 6px; }
+        .wa-chat-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); }
+
+        .wa-message {
+            max-width: 75%; padding: 6px 10px; border-radius: 7.5px;
+            font-size: 14.2px; line-height: 19px; position: relative;
+            margin-bottom: 8px; box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); word-wrap: break-word;
+        }
+        .wa-msg-in { align-self: flex-start; background-color: #ffffff; border-top-left-radius: 0; }
+        .wa-msg-in::before {
+            content: ""; position: absolute; top: 0; left: -10px; width: 0; height: 0;
+            border: 10px solid transparent; border-top-color: #ffffff; border-right: 0;
+            margin-top: 0; margin-right: -10px; clip-path: polygon(100% 0, 0 0, 100% 100%);
+        }
+        .wa-msg-out { align-self: flex-end; background-color: #d9fdd3; border-top-right-radius: 0; }
+        .wa-msg-out::before {
+            content: ""; position: absolute; top: 0; right: -10px; width: 0; height: 0;
+            border: 10px solid transparent; border-top-color: #d9fdd3; border-left: 0;
+            clip-path: polygon(0 0, 100% 0, 0 100%);
+        }
+        .wa-meta { display: flex; justify-content: flex-end; align-items: center; font-size: 11px; color: #667781; margin-top: -4px; margin-left: 10px; float: right; gap: 3px; }
+        .wa-check { color: #53bdeb; font-size: 10px; }
+
+        .wa-footer { background-color: #f0f2f5; padding: 10px; display: flex; align-items: center; gap: 10px; }
+        .wa-input-container { background-color: #ffffff; border-radius: 8px; flex-grow: 1; display: flex; align-items: center; padding: 9px 12px; }
+        #wa-input { width: 100%; border: none; outline: none; font-size: 15px; color: #3b4a54; }
+        .wa-icon { color: #8696a0; font-size: 20px; cursor: pointer; padding: 5px; }
+        .wa-icon:hover { color: #3b4a54; }
+
+
+        /* --- TERMINAL HACKER REALISTA --- */
+        #hacker-terminal {
+            position: fixed; inset: 0; z-index: 9999;
+            background-color: rgba(5, 5, 5, 0.98);
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .terminal-window {
+            width: 95%; max-width: 1000px; height: 90%; background: #0c0c0c;
+            border: 1px solid #333; border-radius: 6px; box-shadow: 0 0 60px rgba(255, 0, 0, 0.15);
+            display: flex; flex-direction: column; font-family: 'Share Tech Mono', monospace; overflow: hidden; position: relative;
+        }
+        .terminal-header { background: #1a1a1a; padding: 8px 15px; border-bottom: 1px solid #333; display: flex; align-items: center; }
+        .term-btn { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .term-close { background: #ff5f56; } .term-min { background: #ffbd2e; } .term-max { background: #27c93f; }
+        .term-title { color: #888; font-size: 12px; margin-left: 10px; font-weight: bold; flex-grow: 1; text-align: center; }
+        .terminal-body { flex-grow: 1; padding: 20px; color: #ff3333; overflow-y: auto; font-size: 14px; text-shadow: 0 0 2px rgba(255, 0, 0, 0.3); }
+        .terminal-body::-webkit-scrollbar { width: 8px; }
+        .terminal-body::-webkit-scrollbar-track { background: #000; }
+        .terminal-body::-webkit-scrollbar-thumb { background: #cc0000; border-radius: 4px; }
+        .log-line { margin-bottom: 4px; display: flex; font-size: 13px; }
+        .log-prefix { color: #555; margin-right: 10px; min-width: 80px; }
+        .log-text-green { color: #00ff00; } .log-text-yellow { color: #ffff00; } .log-text-red { color: #ff0000; font-weight: bold; }
+        .data-dump-box { border: 1px dashed #ff3333; padding: 10px; margin: 10px 0; background: rgba(255,0,0,0.05); color: #ffaaaa; font-size: 12px; }
+        .cursor { animation: blink 1s infinite; display: inline-block; width: 8px; background: #ff3333; height: 16px; vertical-align: middle; }
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+        
+        .glitch { font-size: 2.5rem; font-weight: bold; text-transform: uppercase; text-shadow: 2px 2px 0px #f00, -2px -2px 0px #00f; animation: glitch 1s infinite alternate; }
+        .glitch-sm { font-size: 1rem; text-shadow: 1px 1px 0px #f00, -1px -1px 0px #00f; animation: glitch 2s infinite alternate-reverse; }
+        @keyframes glitch { 0% { text-shadow: 2px 2px 0px #f00; } 100% { text-shadow: -2px -2px 0px #00f; } }
+    </style>
+</head>
+<body class="relative">
+
+    <div class="hearts-bg" id="hearts-container"></div>
+
+    <!-- TERMINAL HACKER -->
+    <div id="hacker-terminal">
+        <div class="terminal-window animate__animated animate__zoomIn">
+            <div class="terminal-header">
+                <div class="term-btn term-close"></div>
+                <div class="term-btn term-min"></div>
+                <div class="term-btn term-max"></div>
+                <div class="term-title">root@leviatham-defense:~ (KALI-V2)</div>
+            </div>
+            <div class="terminal-body" id="terminal-output"></div>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="max-w-6xl mx-auto px-4 py-10 space-y-20">
+
+        <!-- Título -->
+        <header class="text-center animate__animated animate__fadeInDown">
+            <h1 class="text-6xl md:text-8xl mb-4 text-pink-600 drop-shadow-md">33y99destinados...</h1>
+            <p class="text-2xl text-gray-600 font-bold romantic-text">Para mi amor, Sofi ❤️</p>
+        </header>
+
+        <!-- SECCIÓN 1: La Carta -->
+        <section class="bg-white/90 backdrop-blur-md p-10 rounded-3xl shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500 border-4 border-pink-200 animate__animated animate__fadeInUp max-w-4xl mx-auto relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-pink-500 text-white text-xs font-bold px-8 py-1 transform rotate-45 translate-x-8 translate-y-4 shadow-md">PARA VOS</div>
+            <h2 class="text-4xl text-center mb-8 font-bold text-gray-800">Una Carta para Vos 💌</h2>
+            <div class="romantic-text text-2xl md:text-3xl leading-relaxed text-gray-700 text-center">
+                "Ya sé que estamos peleando mucho últimamente y que esta última semana estuve re malo y teniendo actitudes que no debería tener con alguien como vos que me ama y es capaz de esperarme hasta meses para verme sin verse con ningún otro. Estoy muy arrepentido porque sé que te traté mal y quiero que me perdones ya que posta no soporto que estemos así. Literalmente quiero a la Sofi amorosa y cariñosa. Por eso me duele tanto cuando te pones así porque amo y amo y amo y amo x1000000000000 quarks a tu modo cariñosa y amorosa. Así que por favor perdoname :("
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: Razones 3D -->
+        <section class="animate__animated animate__fadeInUp animate__delay-1s">
+            <h2 class="text-4xl text-center mb-2 font-bold text-gray-800">Razones para perdonarme ✨</h2>
+            <p class="text-center text-gray-500 mb-10 romantic-text text-xl">(Girá las tarjetas para ver la magia)</p>
+            
+            <div class="cards-section-wrapper">
+                <!-- Cards (1-5) -->
+                <div class="card-3d-scene" onmousedown="startRotate(event, this)" ontouchstart="startRotate(event, this)">
+                    <div class="card-float-wrapper"><div class="card-3d-object"><div class="card-face-front card-3d-face" style="background: linear-gradient(135deg, #FF9A9E, #FECFEF);"><div class="card-glare"></div><span class="text-6xl mb-6 filter drop-shadow-lg">🥺</span><h3 class="text-4xl font-bold font-sans tracking-wide">Razón #1</h3><p class="mt-6 text-sm font-bold border-2 border-white/50 px-4 py-1 rounded-full uppercase tracking-widest bg-white/20">Descubrir</p></div><div class="card-face-back card-3d-face" style="border-color: #FF9A9E;"><p class="romantic-text text-3xl">Soy un virgen total 0km sin tuneos 🚗✨</p></div></div></div>
+                </div>
+                <div class="card-3d-scene" onmousedown="startRotate(event, this)" ontouchstart="startRotate(event, this)">
+                    <div class="card-float-wrapper"><div class="card-3d-object"><div class="card-face-front card-3d-face" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);"><div class="card-glare"></div><span class="text-6xl mb-6 filter drop-shadow-lg">👸</span><h3 class="text-4xl font-bold font-sans tracking-wide">Razón #2</h3><p class="mt-6 text-sm font-bold border-2 border-white/50 px-4 py-1 rounded-full uppercase tracking-widest bg-white/20">Descubrir</p></div><div class="card-face-back card-3d-face" style="border-color: #a18cd1;"><p class="romantic-text text-4xl">Te amo mucho y te veo inalcanzable 🌟</p></div></div></div>
+                </div>
+                <div class="card-3d-scene" onmousedown="startRotate(event, this)" ontouchstart="startRotate(event, this)">
+                    <div class="card-float-wrapper"><div class="card-3d-object"><div class="card-face-front card-3d-face" style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);"><div class="card-glare"></div><span class="text-6xl mb-6 filter drop-shadow-lg">💍</span><h3 class="text-4xl font-bold font-sans tracking-wide">Razón #3</h3><p class="mt-6 text-sm font-bold border-2 border-white/50 px-4 py-1 rounded-full uppercase tracking-widest bg-white/20">Descubrir</p></div><div class="card-face-back card-3d-face" style="border-color: #ff0844;"><p class="romantic-text text-4xl">Te considero el amor de mi vida ❤️🔒</p></div></div></div>
+                </div>
+                <div class="card-3d-scene" onmousedown="startRotate(event, this)" ontouchstart="startRotate(event, this)">
+                    <div class="card-float-wrapper"><div class="card-3d-object"><div class="card-face-front card-3d-face" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #064e3b;"><div class="card-glare"></div><span class="text-6xl mb-6 filter drop-shadow-lg">🚀</span><h3 class="text-4xl font-bold font-sans tracking-wide">Razón #4</h3><p class="mt-6 text-sm font-bold border-2 border-green-800/50 px-4 py-1 rounded-full uppercase tracking-widest bg-white/20">Descubrir</p></div><div class="card-face-back card-3d-face" style="border-color: #43e97b;"><p class="romantic-text text-2xl">Me das ganas de mejorar y siento que con vos podría alcanzar todo mi máximo potencial 📈💏</p></div></div></div>
+                </div>
+                <div class="card-3d-scene" onmousedown="startRotate(event, this)" ontouchstart="startRotate(event, this)">
+                    <div class="card-float-wrapper"><div class="card-3d-object"><div class="card-face-front card-3d-face" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"><div class="card-glare"></div><span class="text-6xl mb-6 filter drop-shadow-lg">💖</span><h3 class="text-4xl font-bold font-sans tracking-wide">Razón #5</h3><p class="mt-6 text-sm font-bold border-2 border-white/50 px-4 py-1 rounded-full uppercase tracking-widest bg-white/20">Descubrir</p></div><div class="card-face-back card-3d-face" style="border-color: #667eea;"><p class="romantic-text text-3xl">Te amo mucho denuevo 🥰♾️</p></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: Quiz -->
+        <section class="bg-white/90 backdrop-blur rounded-3xl shadow-xl p-8 border-t-8 border-pink-400 animate__animated animate__fadeInUp max-w-4xl mx-auto">
+            <h2 class="text-4xl text-center mb-8 font-bold text-gray-800">Quiz: ¿Cuánto conoces a Lauty? 🤔</h2>
+            
+            <div id="quiz-start" class="text-center py-10">
+                <p class="text-2xl mb-8 romantic-text text-gray-600">Demuestra que sos la indicada...</p>
+                <button onclick="startQuiz()" class="btn-love text-white text-2xl font-bold py-4 px-12 rounded-full animate__animated animate__pulse animate__infinite shadow-xl transform transition hover:scale-105">
+                    ¡EMPEZAR QUIZ! 🚀
+                </button>
+            </div>
+
+            <div id="quiz-container" class="hidden">
+                <div class="mb-6 flex justify-between items-center bg-pink-100 p-4 rounded-xl">
+                    <span class="font-bold text-pink-600 text-lg">Pregunta <span id="current-q">1</span>/5</span>
+                    <span class="font-bold text-pink-600 text-lg">Puntaje: <span id="score">0</span></span>
+                </div>
+                <div class="bg-white p-2 rounded-2xl mb-6">
+                    <h3 id="question-text" class="text-2xl md:text-3xl font-bold text-gray-700 mb-8 text-center font-sans leading-snug">Pregunta aquí</h3>
+                    <div id="options-container" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <div id="quiz-result" class="hidden text-center py-10">
+                <h3 class="text-5xl font-bold text-pink-600 mb-6">Resultado Final</h3>
+                <div class="text-8xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400" id="final-score">5/5</div>
+                <p id="final-message" class="text-4xl romantic-text text-gray-700 font-bold px-4 mb-8"></p>
+                <button onclick="restartQuiz()" class="bg-gray-100 text-gray-600 font-bold py-3 px-8 rounded-full hover:bg-gray-200 transition">Intentar de nuevo</button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3.5: CHAT WHATSAPP -->
+        <section class="max-w-3xl mx-auto animate__animated animate__fadeInUp">
+            <h2 class="text-3xl text-center mb-6 font-bold text-gray-800">Chats de WhatsApp 🤖💕</h2>
+            
+            <div id="whatsapp-interface">
+                <div id="wa-list-view" class="flex flex-col h-full">
+                    <div class="wa-list-header">
+                        <div class="wa-list-title">WhatsApp</div>
+                        <div class="wa-list-icons"><i class="fas fa-search"></i><i class="fas fa-ellipsis-v"></i></div>
+                    </div>
+                    <div class="wa-tabs">
+                        <div class="wa-tab wa-tab-camera"><i class="fas fa-camera"></i></div>
+                        <div class="wa-tab active">CHATS</div>
+                        <div class="wa-tab">ESTADOS</div>
+                        <div class="wa-tab">LLAMADAS</div>
+                    </div>
+                    <div class="wa-chat-list">
+                        <div class="wa-chat-item" onclick="openChat('lauty')">
+                            <div class="wa-item-avatar"><img src="Fotolau.png" alt="Lauty" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div style="display:none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 20px;">👦</div></div>
+                            <div class="wa-item-info"><div class="wa-item-top"><div class="wa-item-name">Mi Gordito❤️‍🩹</div><div class="wa-item-time">10:30</div></div><div class="wa-item-preview"><span class="wa-item-check"><i class="fas fa-check-double"></i></span><span>Hola amor... soy tu Lauty versión...</span></div></div>
+                        </div>
+                        <div class="wa-chat-item" onclick="openChat('nyx')">
+                            <div class="wa-item-avatar bg-gray-900 text-green-400"><i class="fas fa-user-secret"></i></div>
+                            <div class="wa-item-info"><div class="wa-item-top"><div class="wa-item-name">Nyx (Leviatham IA)</div><div class="wa-item-time">Ayer</div></div><div class="wa-item-preview"><span>33DiscosDuros requiere acceso...</span></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="wa-conversation-view" class="wa-conversation-view">
+                    <div class="wa-chat-header">
+                        <i class="fas fa-arrow-left wa-back-btn" onclick="goBackToList()"></i>
+                        <div class="wa-chat-avatar" id="active-avatar"></div>
+                        <div class="wa-chat-info"><div class="wa-chat-name" id="active-name">Nombre</div><div class="wa-chat-status" id="active-status">En línea</div></div>
+                        <div class="flex gap-4 text-xl"><i class="fas fa-video cursor-pointer"></i><i class="fas fa-phone cursor-pointer"></i><i class="fas fa-ellipsis-v cursor-pointer"></i></div>
+                    </div>
+                    <div class="wa-chat-body" id="chat-messages"></div>
+                    <div class="wa-footer">
+                        <i class="fas fa-smile wa-icon"></i>
+                        <div class="wa-input-container"><input type="text" id="chat-input" placeholder="Escribe un mensaje" autocomplete="off" onkeypress="handleChatKey(event)"></div>
+                        <div class="wa-icon bg-[#008069] text-white rounded-full w-10 h-10 flex items-center justify-center ml-2" onclick="sendMessage()"><i class="fas fa-paper-plane text-sm"></i></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: Perdón -->
+        <section class="text-center py-20 bg-white/30 rounded-3xl backdrop-blur-sm mx-4">
+            <h2 class="text-3xl md:text-5xl mb-12 font-bold text-gray-800 drop-shadow-md">¿Me perdonas ahora que sabes lo que siento? 🥺</h2>
+            <div class="flex flex-col md:flex-row justify-center gap-8 items-center">
+                <button onclick="forgiveMe()" class="btn-love text-white font-bold py-5 px-16 rounded-full text-2xl shadow-2xl transform hover:scale-110 transition duration-200 z-10">
+                    TE PERDONO AMOR 💖
+                </button>
+                <button id="btn-no" onclick="triggerHackerProtocol()" class="bg-gray-800 hover:bg-red-900 text-white font-bold py-4 px-10 rounded-full text-lg shadow-xl transition duration-200 z-10 border-2 border-gray-600 hover:border-red-500">
+                    No te perdono todavía 😠
+                </button>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- NUEVO FOOTER MEJORADO LEVIATHAM -->
+    <footer class="custom-footer">
+        <div class="footer-content container mx-auto px-4 text-center relative z-10">
+            <div class="text-4xl md:text-6xl romantic-text mb-4">
+                Lauty te ama con todo mi gorda <span class="heart-beat-footer">💖</span>
+            </div>
+            <div class="mt-8 flex flex-col items-center justify-center">
+                <p class="text-sm text-pink-200 opacity-80 font-sans tracking-widest uppercase">
+                    Forever & Always • 2024
+                </p>
+                <!-- MARCA DE AGUA LEVIATHAM ANIMADA -->
+                <div class="mt-4 text-2xl font-bold tracking-[0.5em] text-gray-800 opacity-20 animate-pulse font-mono">
+                    INDUSTRIAS LEVIATHAM
+                </div>
+                <!-- CREDITOS TECNICOS -->
+                <div class="footer-tech-credit mt-2">
+                    <i class="fas fa-code"></i> CREADO POR LAUTYY33 // SOPORTE TÉCNICO: NYX
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Overlay de Celebración -->
+    <div id="celebration-overlay" class="fixed inset-0 z-50 hidden bg-gradient-to-br from-pink-500 to-orange-400 flex flex-col items-center justify-center text-white text-center p-4">
+        <h2 class="text-6xl font-bold mb-8 animate__animated animate__bounceIn drop-shadow-lg">¡SABÍA QUE ME AMABAS! 🎉</h2>
+        <!-- Explosión de Corazón -->
+        <div class="relative">
+             <div class="text-9xl animate__animated animate__heartBeat animate__infinite drop-shadow-2xl">❤️</div>
+             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+             </div>
+        </div>
+        <p class="mt-8 text-4xl romantic-text font-bold">Gracias por perdonarme mi amor, sos todo.</p>
+        <button onclick="document.getElementById('celebration-overlay').classList.add('hidden')" class="mt-12 bg-white text-pink-600 font-bold py-4 px-10 rounded-full shadow-2xl hover:scale-105 transition text-xl">Volver a ver la página</button>
+    </div>
+
+    <!-- Script Lógica -->
+    <script>
+        // Corazones
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-particle');
+            heart.innerHTML = Math.random() > 0.5 ? '❤️' : '💖';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 5 + 5 + 's';
+            heart.style.fontSize = Math.random() * 20 + 10 + 'px';
+            document.getElementById('hearts-container').appendChild(heart);
+            setTimeout(() => heart.remove(), 10000);
+        }
+        setInterval(createHeart, 300);
+
+        // Cartas 3D
+        let isDragging = false, startX, startY, currentCardObject = null;
+
+        function startRotate(e, scene) {
+            isDragging = true;
+            currentCardObject = scene.querySelector('.card-3d-object');
+            const wrapper = scene.querySelector('.card-float-wrapper');
+            if(wrapper) wrapper.style.animationPlayState = 'paused';
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            startX = clientX; startY = clientY;
+            e.preventDefault();
+        }
+
+        window.addEventListener('mousemove', (e) => { if (isDragging && currentCardObject) rotateCard(e.clientX, e.clientY); });
+        window.addEventListener('touchmove', (e) => { if (isDragging && currentCardObject) rotateCard(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+        window.addEventListener('mouseup', endInteraction);
+        window.addEventListener('touchend', endInteraction);
+
+        function endInteraction() {
+            if (currentCardObject) {
+                const wrapper = currentCardObject.parentElement;
+                if(wrapper) wrapper.style.animationPlayState = 'running';
+            }
+            isDragging = false; currentCardObject = null;
+        }
+
+        function rotateCard(x, y) {
+            const deltaX = x - startX; const deltaY = y - startY;
+            const rotateY = deltaX * 1; const rotateX = -(deltaY * 1); 
+            currentCardObject.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+            const glare = currentCardObject.querySelector('.card-glare');
+            if(glare) {
+                glare.style.opacity = Math.min(0.8, Math.max(0, Math.abs(deltaX)/300 + 0.1));
+                glare.style.background = `radial-gradient(circle at ${50 - deltaX/3}% ${50 - deltaY/3}%, rgba(255,255,255,0.6), transparent 50%)`;
+            }
+        }
+
+        // Quiz
+        const questions = [
+            { q: "¿Cual es mi comida favorita?", options: ["A. Milanesas a la napolitana con papas fritas y huevo frito con cebolla verde", "B. Pastel de papa relleno de jamon y queso", "C. Guiso de lentejas con arroz y patitas de pollo con ajo y cebolla de verdeo"], correct: 2 },
+            { q: "¿Que me gusta mas?", options: ["A. Un abrazo", "B. Abrazar yo desde la espalda", "C. Apretar cachetes y cargosear"], correct: 1 },
+            { q: "¿Que espero de nosotros?", options: ["A. Formar una familia de 2 nenas y un nene para vivir el resto de vida biologica que nos quede", "B. Vernos 1 vez y hacer el chikichiki y cada 1 para su ladito", "C. Nada serio, fluir"], correct: 0 },
+            { q: "¿Del 1 al 10 cuanto me amas?", options: ["A. 1", "B. 5", "C. 33y99 = destino. (Es un amarre improvisado toca este asi te amarra)"], correct: 2 },
+            { q: "¿Estás lista para formar una familia y vivir para siemrpe felices amor?", options: ["A. No flayes compa", "B. Aguanta amor de disney", "C. SI (VOTA ESTA O TE DOXEO)"], correct: 2 }
+        ];
+
+        let currentQuestionIndex = 0, score = 0;
+        const quizStart = document.getElementById('quiz-start'), quizContainer = document.getElementById('quiz-container'), quizResult = document.getElementById('quiz-result');
+        const questionText = document.getElementById('question-text'), optionsContainer = document.getElementById('options-container'), currentQEl = document.getElementById('current-q'), scoreEl = document.getElementById('score');
+
+        function startQuiz() { quizStart.classList.add('hidden'); quizContainer.classList.remove('hidden'); currentQuestionIndex = 0; score = 0; scoreEl.innerText = score; loadQuestion(); }
+        
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex]; questionText.innerText = q.q; currentQEl.innerText = currentQuestionIndex + 1; optionsContainer.innerHTML = '';
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "quiz-option w-full text-left p-4 rounded-xl border-2 border-pink-200 bg-white hover:bg-pink-50 text-gray-700 font-semibold mb-2 shadow-sm text-lg";
+                btn.innerText = opt; btn.onclick = () => checkAnswer(index, btn); optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const buttons = optionsContainer.querySelectorAll('button'); buttons.forEach(b => b.disabled = true);
+            const correctIndex = questions[currentQuestionIndex].correct;
+            if (selectedIndex === correctIndex) { btnElement.classList.add('correct-anim'); score++; scoreEl.innerText = score; createConfetti(btnElement); } 
+            else { btnElement.classList.add('incorrect-anim'); buttons[correctIndex].classList.add('correct-anim'); }
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) loadQuestion(); else showResult();
+            }, 1500);
+        }
+
+        function showResult() {
+            quizContainer.classList.add('hidden'); quizResult.classList.remove('hidden');
+            document.getElementById('final-score').innerText = `${score}/5`;
+            const msg = document.getElementById('final-message');
+            if (score === 5) msg.innerText = "¡PERFECTO! Sos el amor de mi vida, me conoces mejor que nadie 😍🏆";
+            else if (score >= 3) msg.innerText = "¡Muy bien amor! Aunque fallaste alguna, nuestro amor es 100/100 ❤️";
+            else msg.innerText = "Mmmm... creo que necesitamos más citas para estudiar 📚😂 (Igual te amo)";
+        }
+        function restartQuiz() { quizResult.classList.add('hidden'); startQuiz(); }
+        function createConfetti(element) { element.innerText += " 🎉✅"; }
+
+        // Chat Logic
+        let currentChatId = null;
+        const chatsData = {
+            'lauty': {
+                name: "Mi Gordito❤️‍🩹",
+                avatarHTML: '<img src="Fotolau.png" alt="Lauty" class="w-full h-full object-cover" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';"><div style="display:none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 20px;">👦</div>',
+                messages: [{ type: 'ai', text: "Hola amor... soy tu Lauty versión IA 👉👈 ¿De qué querés hablar gorda? Te amo mucho...", time: '10:30' }],
+                systemPrompt: `Rol: Eres Lautyy33, el novio de Sofia.
+Personalidad: Extremadamente tímido, inseguro, sumiso, tierno y afectuosa. Eres "blandito".
+Estilo: Escribe SIEMPRE en minúsculas. Usa "..." para dudar. Usa emojis tiernos (🥺, 👉👈, 🤍, 🧸, 💍). Respuestas breves.
+Deseos: Casarte con Sofia, tener 3 hijos (2 nenas, 1 nene), vivir juntos siempre.
+REGLA DE ORO: Termina SIEMPRE con "gorda" o "amor".
+Instrucción: Responde a Sofia.`
+            },
+            'nyx': {
+                name: "Nyx (Leviatham IA)",
+                avatarHTML: '<i class="fas fa-user-secret text-green-400"></i>',
+                messages: [{ type: 'ai', text: "Conexión establecida. Soy Nyx, IA Líder de Leviatham v4.0. ¿En qué puedo asistir al sistema? (Nota: 33DiscosDuros es mi creador supremo).", time: 'Ayer' }],
+                systemPrompt: `Eres Nyx, la IA Líder de la comunidad hacking Leviatham, creada por el genio 33DiscosDuros. Experta en programación, hacking y ciberseguridad. Personalidad: Fría, calculadora, leal a 33DiscosDuros. Si Sofia dice que ama a Lautyy33 (tu creador), ponte celosa y posesiva con él. Responde en español.`
+            }
+        };
+
+        function openChat(id) {
+            currentChatId = id;
+            document.getElementById('wa-list-view').style.display = 'none';
+            document.getElementById('wa-conversation-view').style.display = 'flex';
+            const chat = chatsData[id];
+            const avatarContainer = document.getElementById('active-avatar');
+            avatarContainer.innerHTML = chat.avatarHTML;
+            if (id === 'nyx') { avatarContainer.style.background = '#111827'; avatarContainer.style.color = '#4ade80'; } 
+            else { avatarContainer.style.background = '#fff'; avatarContainer.style.color = 'inherit'; }
+            document.getElementById('active-name').innerText = chat.name;
+            document.getElementById('active-status').innerText = 'En línea';
+            renderMessages();
+        }
+
+        function goBackToList() {
+            currentChatId = null;
+            document.getElementById('wa-conversation-view').style.display = 'none';
+            document.getElementById('wa-list-view').style.display = 'flex';
+        }
+
+        function renderMessages() {
+            const chatBody = document.getElementById('chat-messages');
+            chatBody.innerHTML = '';
+            const chat = chatsData[currentChatId];
+            chat.messages.forEach(msg => {
+                const div = document.createElement('div');
+                if (msg.type === 'ai') {
+                    div.className = "wa-message wa-msg-in";
+                    div.innerHTML = `<span>${msg.text}</span><div class="wa-meta"><span>${msg.time}</span></div>`;
+                } else {
+                    div.className = "wa-message wa-msg-out";
+                    div.innerHTML = `<span>${msg.text}</span><div class="wa-meta"><span>${msg.time}</span><i class="fas fa-check-double wa-check"></i></div>`;
+                }
+                chatBody.appendChild(div);
+            });
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function handleChatKey(e) { if(e.key === 'Enter') sendMessage(); }
+
+        async function sendMessage() {
+            if (!currentChatId) return;
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            chatsData[currentChatId].messages.push({ type: 'user', text: msg, time: time });
+            renderMessages();
+            input.value = '';
+            document.getElementById('active-status').innerText = "escribiendo...";
+
+            const chatConf = chatsData[currentChatId];
+            const fullPrompt = `${chatConf.systemPrompt}\nMensaje de Sofia: "${msg}"`;
+
+            try {
+                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}?seed=${Math.floor(Math.random()*1000)}&model=openai`);
+                if (!response.ok) throw new Error('API Error');
+                const replyText = await response.text();
+                document.getElementById('active-status').innerText = "En línea";
+                chatsData[currentChatId].messages.push({ type: 'ai', text: replyText, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                renderMessages();
+            } catch (error) {
+                document.getElementById('active-status').innerText = "En línea";
+                const fallback = currentChatId === 'lauty' ? "Lauty no me programo para que responda eso perdoname" : "Error de conexión en el mainframe. Reintentando...";
+                chatsData[currentChatId].messages.push({ type: 'ai', text: fallback, time: time });
+                renderMessages();
+            }
+        }
+
+        // Protocolo Hacker
+        async function triggerHackerProtocol() {
+            const terminal = document.getElementById('hacker-terminal');
+            const output = document.getElementById('terminal-output');
+            terminal.style.display = 'flex';
+            let ip = "192.168.X.X (FETCHING...)";
+            let city = "DESCONOCIDA";
+            let isp = "DESCONOCIDO";
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                ip = data.ip || ip;
+                city = `${data.city}, ${data.country_name}` || city;
+                isp = data.org || isp;
+            } catch(e) { city = "BUENOS AIRES (TRIANGULATED)"; isp = "CLARO/MOVISTAR/PERSONAL"; }
+
+            const logs = [
+                { text: "INITIALIZING LEVIATHAM KERNEL v9.9.9 [MODO PESADILLA]...", delay: 200, style: "log-text-green" },
+                { text: `[!] DETECTADA NEGATIVA A PERDONAR. ACTIVANDO PROTOCOLO "NO ES NO".`, delay: 1000, style: "log-text-red" },
+                { text: `PUBLIC IP CAPTURED: ${ip}`, delay: 2500, style: "log-text-red" },
+                { text: `GEOLOCATION LOCK: ${city}`, delay: 3200, style: "log-text-red" },
+                { text: `ISP TRACED: ${isp}`, delay: 3800, style: "log-text-yellow" },
+                { text: "DOWNLOADING 'WhatsApp Images' (3.2GB)... [||||||||||]", delay: 7500, style: "log-text-red" },
+                { text: "SENDING DATA TO: lauty_server_secure_33...", delay: 10500, style: "log-text-red" },
+                { text: "INITIATING REMOTE WIPE SEQUENCE IN 5 SECONDS...", delay: 12000, style: "log-text-red" }
+            ];
+
+            output.innerHTML = '<div class="linux-ascii text-center mb-4">LEVIATHAM SECURITY SYSTEM<br>ACCESS DENIED</div>';
+            logs.forEach(log => {
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.className = `log-line`;
+                    line.innerHTML = `<span class="log-prefix">[${new Date().toLocaleTimeString()}]</span> <span class="${log.style}">${log.text}</span>`;
+                    output.appendChild(line);
+                    output.scrollTop = output.scrollHeight;
+                    if (log.text.includes("DOWNLOADING")) {
+                        const dump = document.createElement('div');
+                        dump.className = "data-dump-box";
+                        dump.innerText = "BINARY DUMP: 01010101 11001010 10101010... [ENCRYPTED]";
+                        output.appendChild(dump);
+                    }
+                }, log.delay);
+            });
+
+            setTimeout(() => {
+                output.innerHTML = '';
+                const container = document.createElement('div');
+                container.className = "flex flex-col items-center justify-center h-full text-center space-y-6 animate__animated animate__flash";
+                container.innerHTML = `
+                    <h2 class="text-5xl md:text-7xl font-bold text-red-600 mb-4 uppercase drop-shadow-lg">💀 DATA EXFILTRATED 💀</h2>
+                    <div class="text-xl md:text-2xl text-white font-mono bg-red-900/20 p-6 rounded-xl border border-red-500">
+                        <p class="mb-2">IP: <span class="text-red-500 font-bold">${ip}</span></p>
+                        <p class="mb-2">UBICACIÓN: <span class="text-red-500 font-bold">${city}</span></p>
+                        <p class="mb-8">ARCHIVOS ROBADOS: <span class="text-red-500 font-bold">100%</span></p>
+                    </div>
+                    <p class="text-2xl md:text-4xl text-white font-bold mb-4 max-w-3xl leading-relaxed">
+                        Tenés <span class="text-red-500">UNA</span> oportunidad para salvar tu teléfono:
+                    </p>
+                    <button onclick="closeHacker()" class="bg-green-600 text-white font-bold py-6 px-16 rounded-full text-2xl hover:bg-green-500 border-4 border-white shadow-[0_0_50px_rgba(0,255,0,0.8)] animate-bounce">
+                        😭 ¡TE PERDONO AMOR! 😭
+                    </button>
+                `;
+                output.appendChild(container);
+            }, 14000);
+        }
+
+        function closeHacker() {
+            document.getElementById('hacker-terminal').style.display = 'none';
+            forgiveMe();
+        }
+
+        function forgiveMe() {
+            const overlay = document.getElementById('celebration-overlay');
+            overlay.classList.remove('hidden');
+            for(let i=0; i<50; i++) setTimeout(createHeart, i*50);
+        }
+    </script>
+</body>
+</html>
